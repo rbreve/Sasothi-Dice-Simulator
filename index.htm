@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <script type="text/javascript" src="https://blockchain.info//Resources/wallet/pay-now-button.js"></script>
+    
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    
+    <style type="text/css" media="screen">
+        body{font-family:helvetica;}
+        .pageTitle{width:420px;margin:auto;}
+        .abutton{width:350px;height:200px;font-size:22px;}
+        .green{color:green;}
+        .red{color:red;}
+        .result{font-size:12px;width:400px; }
+        .result tr{background-color:#EFEFEF;height:20px;}
+        .resultHeader{font-weight:bold;}
+    </style>
+    
+    <title>Satoshi Dice Simulator</title>
+    
+    <script type="text/javascript" charset="utf-8">
+    var initialBetAmount;
+    
+    function rollDice(){
+        var gameType=document.forms["myForm"]["gameType"].value;
+        var bets = document.forms["myForm"]["bets"].value;
+        var totalBTC = document.forms["myForm"]["totalAmount"].value;
+        var betAmount = document.forms["myForm"]["betAmount"].value;
+        var useMartingale = document.forms["myForm"]["martingale"].checked;
+       
+        if(useMartingale){
+            initialBetAmount=betAmount;
+        }
+   
+        var percentages=[   
+                        {percentage:0.915527,mult:1.0711}, 
+                        {percentage:0.732422,mult:1.33760} , 
+                        {percentage:0.500000,mult:1.957} , 
+                        {percentage:0.488281,mult:2.00380}  , 
+                        {percentage:0.366211,mult:2.6701}, 
+                        {percentage:0.244141,mult:4.0027}, 
+                        {percentage:0.183105,mult:5.3353}, 
+                        {percentage:0.12207,mult:8.0004}, 
+                        {percentage:0.030518,mult:31.9866},
+                        {percentage:0.015259,mult:63.9681},
+                        {percentage:0.000015, mult:64000},
+
+                        ];
+                        
+        var values = percentages[gameType];
+        var div = document.getElementById('result');
+        var finalBalance = document.getElementById('finalBalance');
+        var probability=values.percentage;
+        var multi=values.mult;
+        var resultHTML="<table class=result align=center><tr class=resultHeader><td align=center>Iteration</td> <td>Bet Amount</td><td align=center>Result</td><td align=center>Returned</td><td>New Balance</td> </tr>";
+        for(i=0;i<bets;i++){
+            var random=Math.random();
+            var winOrLose="";
+            totalBTC-=betAmount;
+            if (random <= probability){
+                if(useMartingale){
+                    newBetAmount=initialBetAmount;
+                }
+                totalBTC+=betAmount*multi;
+                winOrLose = "<td align=center>Won</td><td class=green> +"+(betAmount*multi-betAmount).toFixed(8)+"</td>";
+            }else{
+                if(useMartingale){
+                    newBetAmount=betAmount*2
+                    //document.forms["myForm"]["betAmount"].value=betAmount;
+                }
+                winOrLose = "<td align=center>Lost</td><td class=red> -"+betAmount+"</td>";
+            }
+           resultHTML+=" <tr><td align=center>"+(i+1)+"</td><td align=center>" + betAmount + "</td>"+winOrLose+"<td>"+totalBTC.toFixed(8)+"</td></tr>";
+           if(useMartingale){
+               betAmount=newBetAmount;
+           }
+           document.forms["myForm"]["totalAmount"].value=totalBTC.toFixed(8);
+           if(totalBTC < betAmount){
+               resultHTML += "<tr><td colspan=4 align=center>Game Over! ran out of coins :(</td></tr>";
+               break;
+           }
+           
+        }
+        div.innerHTML=resultHTML + "</table>";
+        finalBalance.innerHTML = totalBTC.toFixed(8);
+        
+        return false;
+    }
+    
+    </script>
+    
+</head>
+
+<body id="satoshi" onload="">
+    
+    <div style="font-size:16px;margin:0 auto;width:300px" class="blockchain-btn"
+         data-address="1NGpm4AV7XzhbHSy3a3cDM7dCGsPSjY3uV"
+         data-shared="false">
+        <div class="blockchain stage-begin">
+            <img src="https://blockchain.info//Resources/buttons/donate_64.png"/>
+        </div>
+        <div class="blockchain stage-loading" style="text-align:center">
+            <img src="https://blockchain.info//Resources/loading-large.gif"/>
+        </div>
+        <div class="blockchain stage-ready">
+             <p align="center">Please Donate To Bitcoin Address: <b>[[address]]</b></p>
+             <p align="center" class="qr-code"></p>
+        </div>
+        <div class="blockchain stage-paid">
+             Donation of <b>[[value]] BTC</b> Received. Thank You.
+        </div>
+        <div class="blockchain stage-error">
+            <font color="red">[[error]]</font>
+        </div>
+    </div>
+    <div class="pageTitle">
+    <h2>Satoshi Dice  Simulator in Javascript</h2>
+    </div>
+    <form action="#" accept-charset="utf-8" id="form" onsubmit="return rollDice()" name="myForm">
+    
+        <table border="0" cellspacing="5" cellpadding="5" align=center>
+            <tr>
+
+                <td>Game Type</td>
+
+                <td> <select name="gameType" id="some_name" onchange="" size="1">
+                    <option value="0">91.5527%</option>
+                    <option value="1">73.2422%</option>
+                    <option value="2">50%</option>
+                    <option value="3">48.8281%</option>
+                    <option value="4">36.6211%</option>
+                    <option value="5">24.4141%</option>
+                    <option value="6">18.3105%</option>
+                    <option value="7">12.207%</option>
+                    <option value="8">3.0518%</option>
+                    <option value="9">1.5259%</option>
+                    <option value="10">0.0015%</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Initial BTC Amount:</td>
+            <td><input type="text" name="totalAmount" value="10" id="totalAmount"></td>
+        </tr>
+
+        <tr>
+            <td>Bet Amount:</td>
+            <td><input type="text" name="betAmount" value="1" id="betAmount"></td>
+        </tr>
+
+        <tr>
+            <td>Number of Bets:</td>
+            <td> <input type="text" name="bets" value="20" id="bets">
+            </td>
+        </tr>
+        
+        <tr>
+        <td> Use Martingale
+        </td>
+        <td><input type=checkbox name="martingale">
+            </td>
+        </tr>
+        <tr>
+             <td>Final Balance</td>
+             <td id="finalBalance"> </td>
+         </tr>
+         
+         <tr><td colspan=2><input type="submit" value="Roll" class="abutton"> </td></tr>
+
+    </table>
+    
+        
+    </form>
+    <div id="result">
+        
+    </div>
+    <center>
+    <a href="https://docs.google.com/forms/d/1jwOh9bvQoIU1Ct4bsEZujFZhnptSHQ0ej0T0UrlUfSg/viewform">Feedback, Comments</a>
+    </center>
+</body>
+
+</html>
