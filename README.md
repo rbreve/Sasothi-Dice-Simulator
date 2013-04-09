@@ -1,1 +1,1 @@
-A Satoshi Dice Simulator using Martingale
+A Javascript Satoshi Dice Simulator using Martingale
